@@ -35,3 +35,14 @@ services:
         generateValue: true
       - key: ADMIN_EMAIL
         value: "admin@gamesquad.gg"
+      # AI providers. Model names are safe to commit; the API keys are NOT —
+      # sync:false means Render asks you to paste them in the dashboard, so
+      # they never live in git. Leave them blank to run in heuristic mode.
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: "llama-3.3-70b-versatile"
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODEL
+        value: "meta-llama/llama-3.3-70b-instruct"
