@@ -13,7 +13,7 @@ services:
     plan: free
     rootDir: backend
     # Python version comes from backend/.python-version (3.13).
-    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate"
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate && python manage.py seed && python manage.py ensure_superuser"
     startCommand: "gunicorn config.wsgi --bind 0.0.0.0:$PORT"
     envVars:
       - key: DATABASE_URL
@@ -28,3 +28,10 @@ services:
         value: "https://gamesquad-three.vercel.app"
       - key: CSRF_TRUSTED_ORIGINS
         value: "https://gamesquad-three.vercel.app"
+      # Admin login for the app's admin section + Django /admin.
+      - key: ADMIN_USERNAME
+        value: "admin"
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: "admin@gamesquad.gg"
