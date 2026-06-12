@@ -55,5 +55,6 @@ urlpatterns = [
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve uploaded media (avatars) in every environment. On Railway these live
+# on a persistent volume; Django streams them since there's no separate CDN.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

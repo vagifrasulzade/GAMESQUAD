@@ -5,6 +5,7 @@ Django settings for the GameSquad project.
 from datetime import timedelta
 from pathlib import Path
 
+import dj_database_url
 from dotenv import load_dotenv
 import os
 
@@ -25,6 +26,21 @@ SECRET_KEY = env(
 DEBUG = env("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+
+# Railway provides the public domain in this env var; trust it automatically.
+RAILWAY_HOST = env("RAILWAY_PUBLIC_DOMAIN")
+if RAILWAY_HOST:
+    ALLOWED_HOSTS.append(RAILWAY_HOST)
+
+# Behind Railway's proxy, tell Django the original request was HTTPS.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Origins allowed to send authenticated POSTs (Django admin, session auth).
+CSRF_TRUSTED_ORIGINS = [
+    o for o in env("CSRF_TRUSTED_ORIGINS", "").split(",") if o
+]
+if RAILWAY_HOST:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RAILWAY_HOST}")
 
 
 # Application definition
@@ -54,6 +70,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -83,11 +100,12 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 
+# Uses DATABASE_URL (Postgres) in production; falls back to local SQLite.
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+    )
 }
 
 AUTH_USER_MODEL = "accounts.User"
@@ -107,7 +125,17 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR / "media"
+# On Railway, point MEDIA_ROOT at the mounted persistent volume so uploaded
+# avatars survive redeploys. Locally this falls back to ./media.
+MEDIA_ROOT = Path(env("MEDIA_ROOT", str(BASE_DIR / "media")))
+
+# WhiteNoise serves the collected static files (Django admin + DRF UI).
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    },
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
