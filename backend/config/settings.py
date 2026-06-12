@@ -27,20 +27,21 @@ DEBUG = env("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
-# Railway provides the public domain in this env var; trust it automatically.
-RAILWAY_HOST = env("RAILWAY_PUBLIC_DOMAIN")
-if RAILWAY_HOST:
-    ALLOWED_HOSTS.append(RAILWAY_HOST)
+# The host platform exposes the public domain in an env var; trust it
+# automatically. Render uses RENDER_EXTERNAL_HOSTNAME, Railway RAILWAY_PUBLIC_DOMAIN.
+PLATFORM_HOST = env("RENDER_EXTERNAL_HOSTNAME") or env("RAILWAY_PUBLIC_DOMAIN")
+if PLATFORM_HOST:
+    ALLOWED_HOSTS.append(PLATFORM_HOST)
 
-# Behind Railway's proxy, tell Django the original request was HTTPS.
+# Behind the platform's proxy, tell Django the original request was HTTPS.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Origins allowed to send authenticated POSTs (Django admin, session auth).
 CSRF_TRUSTED_ORIGINS = [
     o for o in env("CSRF_TRUSTED_ORIGINS", "").split(",") if o
 ]
-if RAILWAY_HOST:
-    CSRF_TRUSTED_ORIGINS.append(f"https://{RAILWAY_HOST}")
+if PLATFORM_HOST:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{PLATFORM_HOST}")
 
 
 # Application definition

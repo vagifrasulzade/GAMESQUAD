@@ -1,0 +1,30 @@
+# Render Blueprint — provisions the GameSquad backend + a free Postgres DB.
+# In Render: New + -> Blueprint -> connect this repo -> Apply.
+databases:
+  - name: gamesquad-db
+    plan: free
+    databaseName: gamesquad
+    user: gamesquad
+
+services:
+  - type: web
+    name: gamesquad-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    # Python version comes from backend/.python-version (3.13).
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate"
+    startCommand: "gunicorn config.wsgi --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gamesquad-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://gamesquad-three.vercel.app"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://gamesquad-three.vercel.app"
