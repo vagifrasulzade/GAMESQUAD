@@ -62,7 +62,6 @@ Set `VITE_API_URL` if the backend is not on `http://127.0.0.1:8000/api`.
 | Clans       | `GET/POST /api/clans/`, `POST /api/clans/{id}/join/` |
 | Recruitment | `GET/POST /api/recruitments/`, `GET /api/applications/` |
 | Social      | `/api/conversations/`, `/api/notifications/`, `/api/saved/`, `/api/reports/` |
-| **AI**      | `GET /api/matches/?type=teams|clans|all`, `POST /api/matches/assistant/` |
 
 ## How AI matching works
 
