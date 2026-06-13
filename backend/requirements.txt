@@ -9,9 +9,15 @@ attrs==26.1.0
     #   jsonschema
     #   referencing
 certifi==2026.5.20
-    # via requests
+    # via
+    #   cloudinary
+    #   requests
 charset-normalizer==3.4.7
     # via requests
+cloudinary==1.44.2
+    # via
+    #   backend
+    #   django-cloudinary-storage
 dj-database-url==3.1.2
     # via backend
 django==6.0.6
@@ -22,6 +28,8 @@ django==6.0.6
     #   djangorestframework
     #   djangorestframework-simplejwt
     #   drf-spectacular
+django-cloudinary-storage==0.3.0
+    # via backend
 django-cors-headers==4.9.0
     # via backend
 djangorestframework==3.17.1
@@ -59,11 +67,15 @@ referencing==0.37.0
     #   jsonschema
     #   jsonschema-specifications
 requests==2.34.2
-    # via backend
+    # via
+    #   backend
+    #   django-cloudinary-storage
 rpds-py==2026.5.1
     # via
     #   jsonschema
     #   referencing
+six==1.17.0
+    # via cloudinary
 sqlparse==0.5.5
     # via django
 typing-extensions==4.15.0 ; python_full_version < '3.13'
@@ -77,6 +89,8 @@ tzdata==2026.2 ; sys_platform == 'win32'
 uritemplate==4.2.0
     # via drf-spectacular
 urllib3==2.7.0
-    # via requests
+    # via
+    #   cloudinary
+    #   requests
 whitenoise==6.12.0
     # via backend

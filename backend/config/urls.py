@@ -1,7 +1,7 @@
 from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
+from django.views.static import serve as serve_media
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -55,6 +55,16 @@ urlpatterns = [
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
 ]
 
-# Serve uploaded media (avatars) in every environment. On Railway these live
-# on a persistent volume; Django streams them since there's no separate CDN.
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve uploaded media (avatars) in every environment. These live on a
+# persistent disk (Render) / volume (Railway); Django streams them since there's
+# no separate CDN. We use django.views.static.serve directly instead of the
+# conf.urls.static.static() helper because that helper is a no-op when
+# DEBUG=False, which silently 404s every uploaded image in production.
+_media_prefix = settings.MEDIA_URL.lstrip("/")
+urlpatterns += [
+    re_path(
+        rf"^{_media_prefix}(?P<path>.*)$",
+        serve_media,
+        {"document_root": settings.MEDIA_ROOT},
+    ),
+]

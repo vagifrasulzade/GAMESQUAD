@@ -138,6 +138,17 @@ STORAGES = {
     },
 }
 
+# User-uploaded media (avatars). Render's free disk is ephemeral, so when a
+# CLOUDINARY_URL is configured we store uploads on Cloudinary's free CDN instead;
+# the URL survives redeploys. Without it (local dev) we keep filesystem storage.
+# The cloudinary SDK auto-reads the CLOUDINARY_URL env var on import.
+CLOUDINARY_URL = env("CLOUDINARY_URL", "")
+if CLOUDINARY_URL:
+    INSTALLED_APPS += ["cloudinary", "cloudinary_storage"]
+    STORAGES["default"] = {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
+    }
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 

@@ -24,6 +24,13 @@ services:
         generateValue: true
       - key: DEBUG
         value: "False"
+      # Cloudinary stores user-uploaded media (avatars) durably on its free CDN,
+      # since Render's free disk is ephemeral. Paste the "API Environment
+      # variable" (cloudinary://<key>:<secret>@<cloud_name>) from your Cloudinary
+      # dashboard. sync:false => Render prompts for it instead of committing it.
+      # Leave unset to fall back to local filesystem storage (dev only).
+      - key: CLOUDINARY_URL
+        sync: false
       - key: CORS_ALLOWED_ORIGINS
         value: "https://gamesquad-three.vercel.app"
       - key: CSRF_TRUSTED_ORIGINS
